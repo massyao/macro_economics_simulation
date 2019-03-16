@@ -1,0 +1,391 @@
+<html>
+<body>
+<style>
+  .map {
+    border: 1px solid grey;
+    overflow: hidden;
+    margin: 0 auto;
+  }
+  .row {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0 solid white;
+  }
+  .cell {
+    display: block;
+    float: left;
+    margin: 0;
+    padding: 0;
+    border: 0 solid white;
+    font-size: 12px;
+    line-height: 12px;
+  }
+</style>
+<div id="root" onclick="clickHandler(event)"></div>
+<script>
+  const COUNTRY_CELL_WIDTH = 10; // px
+  const CELL_NUMBER = 60 // 100 * 100
+  const INCREASE_RATE = 0.06
+  const TIME_INTERVAL = 0.3 * 1000
+  const INIT_PEOPLE = 5000
+  const PEACE_PEOPLE = 5000
+  const MAX_PEOPLE = 10000
+  const COUNTRY_COLOR_MAP = {
+    // aqua,black,blue,fuchsia,gray,green,lime,maroon,navy,olive,purple,red,silver,teal,white,yellow
+    none: 'white',
+    china: 'red',
+    russia: 'green',
+    america: 'blue',
+    germany: 'aqua',
+    france: 'black',
+    japan: 'fuchsia',
+    aussie: 'lime',
+    italy: 'maroon',
+    iran: 'navy',
+    iraque: 'olive',
+    india: 'purple',
+    canada: 'silver',
+    braizl: 'teal',
+    mangulia: 'yellow',
+    aa: 'red',
+    bb: 'green',
+    cc: 'blue',
+    dd: 'aqua',
+    ee: 'black',
+    ff: 'fuchsia',
+    gg: 'lime',
+    hh: 'maroon',
+    ii: 'navy',
+    jj: 'olive',
+    kk: 'purple',
+    ll: 'silver',
+    mm: 'teal',
+    nn: 'yellow',
+    oo: 'red',
+    pp: 'green',
+    qq: 'blue',
+    rr: 'aqua',
+    ss: 'black',
+    tt: 'fuchsia',
+    uu: 'lime',
+    vv: 'maroon',
+    ww: 'navy',
+    xx: 'olive',
+    yy: 'purple',
+    zz: 'silver',
+    aaa: 'teal',
+    bbb: 'yellow'
+  }
+  
+  function Cell(people_cell_data) {
+    // let color = `rgb(${Math.floor(256 * Math.random())}, ${Math.floor(256 * Math.random())}, ${Math.floor(256 * Math.random())})`
+    let color = COUNTRY_COLOR_MAP[people_cell_data.country]
+    return (`<div class=\"cell\" style=\"width: ${COUNTRY_CELL_WIDTH}px;height: ${COUNTRY_CELL_WIDTH}px; background-color: ${color};\"  title=\"${people_cell_data.people}\">${people_cell_data.war_status ? 'x' : ''}</div>`)
+    // ${people_cell_data.people}
+  }
+
+  function Map (people_data) {
+    
+    let map_arr = []
+    for (let row = 0; row < CELL_NUMBER; row++) {
+      let cell_row_arr = []
+      for (let column = 0; column < CELL_NUMBER; column++) {
+        let cell_string = Cell(people_data[row][column])
+        cell_row_arr.push(cell_string)
+      }
+      let cell_row_string = `<div class="row" style="width: ${CELL_NUMBER * COUNTRY_CELL_WIDTH};height: ${ COUNTRY_CELL_WIDTH}">` + cell_row_arr.join('') + '</div>'
+      map_arr.push(cell_row_string)
+    }
+    let map_string = `<div class="map" style="width: ${CELL_NUMBER * COUNTRY_CELL_WIDTH};height: ${CELL_NUMBER * COUNTRY_CELL_WIDTH}">` + map_arr.join('') + '</div>'
+    let root = document.getElementById('root')
+    root.innerHTML = map_string
+  }
+  
+  function Tribe(people = 0, country = 'none') {
+    
+    return {
+      people,
+      //into,
+      //out,
+      country,
+      war_status: false
+    }
+  }
+  
+  // 人口初值1000
+  // 自然增长率6%
+  // 到达5000开始迁徙
+  // 向周边可容纳人数的比例迁出
+  // 如不能迁出 ，人口会增加到10000，然后停滞
+  
+  function init_map_tribe_data() {
+    let data = []
+    for (let data_row_index = 0;data_row_index < CELL_NUMBER; data_row_index++) {
+      data[data_row_index] = []
+      for (let data_column_index = 0;data_column_index < CELL_NUMBER; data_column_index++) {
+        data[data_row_index][data_column_index] = 0
+      }
+    }
+    let countries_arr = Object.keys(COUNTRY_COLOR_MAP)
+      .map(name => {
+        let result
+        if (name === 'none') {
+          return
+        }
+        return Math.random() > 0.5 ? name : undefined
+      })
+      .filter(e => e)
+    console.log('countries_arr', countries_arr)
+    countries_arr.forEach((country) => {
+      let x = Math.floor(Math.random() * CELL_NUMBER)
+      let y = Math.floor(Math.random() * CELL_NUMBER)
+      data[x][y] = Tribe(INIT_PEOPLE, country)
+    })
+    return data
+  }
+  
+  // 人口增长
+  function population_increase(data) {
+    for (let data_row_index = 0;data_row_index < CELL_NUMBER; data_row_index++) {
+      data[data_row_index] = data[data_row_index] || []
+      for (let data_column_index = 0;data_column_index < CELL_NUMBER; data_column_index++) {
+        // data[data_row_index][data_column_index] = data[data_row_index][data_column_index] || []
+        let tribe = data[data_row_index][data_column_index] || Tribe()
+        if (tribe.people > 0) {
+          if (tribe.people > MAX_PEOPLE) {
+            tribe.people = tribe.people
+          } else {
+            tribe.people = tribe.people * (1 + INCREASE_RATE)
+          }
+        }
+        data[data_row_index][data_column_index] = tribe
+      }
+    }
+    return data
+  }
+  
+  // 人口迁徙
+  function population_migration(data) {
+    for (let data_row_index = 0;data_row_index < CELL_NUMBER; data_row_index++) {
+      // data[data_row_index] = data[data_row_index] || []
+      for (let data_column_index = 0;data_column_index < CELL_NUMBER; data_column_index++) {
+        // data[data_row_index][data_column_index] = data[data_row_index][data_column_index] || []
+        let tribe = data[data_row_index][data_column_index]
+        let left = data[data_row_index] && data[data_row_index][data_column_index - 1] || false
+        let right = data[data_row_index] && data[data_row_index][data_column_index + 1] || false
+        let up = data[data_row_index - 1] && data[data_row_index - 1][data_column_index] || false
+        let down = data[data_row_index + 1] && data[data_row_index + 1][data_column_index] || false
+        if (tribe.people > PEACE_PEOPLE) {
+          let left_can_in_people = (left && (left.country == 'none' || left.country == tribe.country)) ? (tribe.people - left.people > 0 ? tribe.people - left.people : 0) : 0
+          let right_can_in_people = (right && (right.country == 'none' || right.country == tribe.country)) ? (tribe.people - right.people > 0 ? tribe.people - right.people : 0) : 0
+          let up_can_in_people = (up && (up.country == 'none' || up.country == tribe.country)) ? (tribe.people - up.people > 0 ? tribe.people - up.people : 0) : 0
+          let down_can_in_people = (down && (down.country == 'none' || down.country == tribe.country)) ? (tribe.people - down.people > 0 ? tribe.people - down.people : 0) : 0
+          let total_can_in_people = left_can_in_people + right_can_in_people + up_can_in_people + down_can_in_people
+          // 人口可以迁出
+          if (total_can_in_people > 0) {
+            let go_people = tribe.people - PEACE_PEOPLE
+            if (left) {
+              left.people = left.people + left_can_in_people * go_people / total_can_in_people
+              if (left_can_in_people) {
+                left.country = tribe.country
+              }
+            }
+            if (right) {
+              right.people = right.people + right_can_in_people * go_people / total_can_in_people
+              if (right_can_in_people) {
+                right.country = tribe.country
+              }
+            }
+            if (up) {
+              up.people = up.people + up_can_in_people * go_people / total_can_in_people
+              if (up_can_in_people) {
+                up.country = tribe.country
+              }
+            }
+            if (down) {
+              down.people = down.people + down_can_in_people * go_people / total_can_in_people
+              if (down_can_in_people) {
+                down.country = tribe.country
+              }
+            }
+            tribe.people = PEACE_PEOPLE
+          }
+        }
+        // 人口停滞
+        if (tribe.people > MAX_PEOPLE) {
+          tribe.people = MAX_PEOPLE
+        }
+        data[data_row_index][data_column_index] = tribe
+      }
+    }
+    return data
+  }
+  
+  // 战争
+  function population_engage_war(data) {
+    for (let data_row_index = 0;data_row_index < CELL_NUMBER; data_row_index++) {
+      for (let data_column_index = 0;data_column_index < CELL_NUMBER; data_column_index++) {
+        let tribe = data[data_row_index][data_column_index]
+        let left = data[data_row_index] && data[data_row_index][data_column_index - 1] || false
+        let right = data[data_row_index] && data[data_row_index][data_column_index + 1] || false
+        let up = data[data_row_index - 1] && data[data_row_index - 1][data_column_index] || false
+        let down = data[data_row_index + 1] && data[data_row_index + 1][data_column_index] || false
+        
+        // 周围没敌人
+        let foe_detect = [left, right, up, down].some(surround_country => surround_country && surround_country.country !== 'none'  && surround_country.country != tribe.country)
+        if (!foe_detect) {
+          continue
+        }
+        
+        // 人口没超限 且 不在战争状态
+        let war_detect = [left, right, up, down].some(surround_country => surround_country && surround_country.war_status)
+        if (!tribe.war_status && !war_detect && tribe.people < MAX_PEOPLE ) {
+          continue
+        }
+        // 能动员
+        if (tribe.people < 2000) {
+          continue
+        }
+        
+        // 宣战
+        tribe.war_status = true
+        {
+          // 寻找敌人，在战的优先，人口少优先
+          let enemy
+          let enemy_at_war = [left, right, up, down]
+            .filter(surround_country => surround_country &&
+              surround_country.war_status &&
+              surround_country.country !== tribe.country
+            )
+          if (enemy_at_war.length) {
+            enemy = enemy_at_war.reduce((acc = {}, current_ele) => {
+              let prev_people = ~~acc.people
+              if (!prev_people) {
+                return acc
+              }
+              if (prev_people > current_ele.people) {
+                return acc
+              } else {
+                return current_ele
+              }
+            })
+          } else {
+            if (!enemy_at_war.length) {
+              enemy = [left, right, up, down]
+                .filter(surround_country => surround_country &&
+                  surround_country.country !== 'none' &&
+                  surround_country.country !== tribe.country
+                )
+                .reduce((acc = {}, current_ele) => {
+                  let prev_people = ~~acc.people
+                  if (!prev_people) {
+                    return acc
+                  }
+                  if (prev_people > current_ele.people) {
+                    return acc
+                  } else {
+                    return current_ele
+                  }
+                })
+            }
+          }
+          
+          // // console.log('enemy is ', enemy)
+          
+          // combat
+          enemy.war_status = true
+          // console.table({enemy,tribe})
+          // alert(1)
+          let gamer_a = Math.max(enemy.people, tribe.people) === enemy.people ? enemy : tribe
+          let gamer_b = Math.min(enemy.people, tribe.people) === enemy.people ? enemy : tribe
+          // console.table({gamer_a,gamer_b})
+          // alert(2)
+          let warrior_a = gamer_a.people * 0.75
+          let extra_moblize_people = (gamer_a.people - gamer_b.people) * 0.25 < gamer_b.people * 0.25 ?
+            (gamer_a.people - gamer_b.people) * 0.25 :
+            gamer_b.people * 0.25
+          let warrior_b = gamer_b.people * 0.75 + extra_moblize_people
+          // console.table({warrior_a,warrior_b})
+          // alert(3)
+          let warrior_a_left = warrior_a - warrior_b * Math.sqrt(1 + Math.random())
+          warrior_a_left = warrior_a_left > 0 ? warrior_a_left : 0
+          let warrior_b_left = warrior_b - warrior_a * Math.sqrt(1 + Math.random())
+          warrior_b_left = warrior_b_left > 0 ? warrior_b_left : 0
+          // console.table({warrior_a_left,warrior_b_left})
+          // alert(4)
+          if (warrior_a_left === warrior_b_left) {
+            continue
+          }
+          let winner = Math.max(warrior_a_left, warrior_b_left) === warrior_a_left ? gamer_a : gamer_b
+          let loser = Math.min(warrior_a_left, warrior_b_left) === warrior_a_left ? gamer_a : gamer_b
+          // console.table({winner,loser})
+          // alert(5)
+          // conquer
+          loser.country = winner.country
+          loser.people = loser.people - warrior_b + warrior_b_left
+          winner.people = winner.people - warrior_a + warrior_a_left
+          // console.table({enemy,tribe,gamer_a,gamer_b,winner,loser})
+          // winner.war_status = false
+          // loser.war_status = false
+          // alert(6)
+        }
+
+        // 设置数据
+        data[data_row_index][data_column_index] = tribe
+      }
+    }
+    
+    return data
+  }
+  
+  function update_Data(data) {
+    let new_data = population_increase(data)
+    new_data = population_migration(data)
+    new_data = population_engage_war(data)
+    return new_data
+  }
+
+  function main () {
+    let data = init_map_tribe_data()
+    // // console.log(data)
+    // Map(data)
+    setInterval(() => {
+      if (window.pause) {
+        return
+      }
+      data = update_Data(data)
+      Map(data)
+    }, TIME_INTERVAL)
+  }
+  
+  function clickHandler(e) {
+    window.pause = !window.pause
+  }
+  main()
+  
+/*
+  const COUNTRY_CELL_WIDTH = 100;
+  class County_cell {
+    constructor(name) {
+      //一定要有构造方法，如果没有默认生成空构造方法
+      this.a3 = '3'   // 这里定义实例属性
+      this.name = name
+      // // console.log(new Date() - 0)
+      this.log()
+    }
+    log() {
+      // console.log(1)
+    }
+  }
+  
+  class Map {
+    
+  }
+  
+  var a = new County_cell
+  */
+</script>
+
+</body>
+</html>
