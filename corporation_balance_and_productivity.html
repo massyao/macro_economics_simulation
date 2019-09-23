@@ -1,0 +1,253 @@
+<html>
+<body>
+<div>
+  <canvas id="canvas" width="10000" height="1000" style="margin-left:10px;"></canvas>
+</div>
+<script>
+
+  // .reduce((prev, next, index, array) => prev + next)
+  // 0-19 0; 20-29 10->100; 30-59 100->0; 60-80 0;
+  const SALARY_MAX = 101;
+  const SALARY_WITH_AGE = Array.from(new Array(80), (e, i) => {
+    if(i < 20) {return 0}
+    if(i < 30) {return SALARY_MAX / 10 * (i - 19)}
+    if(i < 60) {return SALARY_MAX - (SALARY_MAX / 30 * (i - 29))}
+    if(i < 80) {return 0}
+  })
+  // let salary = SALARY_WITH_AGE.reduce((prev, next, index, array) => prev + next)
+  // consumption
+  const CONSUMPTION_BASE = 16
+  const CONSUMPTION_WITH_AGE = Array.from(new Array(80), (e, i) => {
+    if(i < 30) {return CONSUMPTION_BASE + CONSUMPTION_BASE / 20 * i}
+    if(i < 80) {return 2 * CONSUMPTION_BASE - (CONSUMPTION_BASE / 50 * (i - 29))}
+  })
+  // let consumption = CONSUMPTION_WITH_AGE.reduce((prev, next, index, array) => prev + next)
+  const MARRIAGE_FEE = 100
+  // the age will plus 1 for index start at 0
+  const STAND_ALONE_AGE = SALARY_WITH_AGE.map((salary,year) => {
+    return salary - CONSUMPTION_WITH_AGE[year] > 0 ? 1 : 0
+  }).indexOf(1) + 1
+  console.log('SALARY_WITH_AGE',  SALARY_WITH_AGE)
+  console.log('CONSUMPTION_WITH_AGE',  CONSUMPTION_WITH_AGE)
+  console.log('STAND_ALONE_AGE',  STAND_ALONE_AGE)
+
+  const DEEP_COPY = obj => JSON.parse(JSON.stringify(obj))
+  
+  const NAME = "Aaron Abbott Abel Abner Abraham Adair Adam Addison Adolph Adonis Adrian Ahern Alan Albert Aldrich Alexander Alfred Alger Algernon Allen Alston Alva Alvin Alvis Amos Andre Andrew Andy Angelo Augus Ansel Antony Antoine Antonio Archer Archibald Aries Arlen Armand Armstrong Arno Arnold Arthur Arvin Asa Ashbur Atwood Aubrey August Augustine Avery Baird Baldwin Bancroft Bard Barlow Barnett Baron Barret Barry Bartholomew Bart Barton Bartley Basil Beacher Beau Beck Ben Benedict Benjamin Bennett Benson Berg Berger Bernard Bernie Bert Berton Bertram Bevis Bill Bing Bishop Blair Blake Blithe Bob Booth Borg Boris Bowen Boyce Boyd Bradley Brady Brandon Brian Broderick Brook Bruce Bruno Buck Burgess Burke Burnell Burton Byron Caesar Calvin Carey Carl Carr Carter Cash Cecil Cedric Chad Channing Chapman Charles Chasel Chester Christ Christian Christopher Clare Clarence Clark Claude Clement Cleveland Cliff Clifford Clyde Colbert Colby Colin Conrad Corey Cornelius Cornell Craig Curitis Cyril Dana Daniel Darcy Darnell Darren Dave David Dean Dempsey Dennis Derrick Devin Dominic Don Donahue Donald Douglas Drew Duke Duncan Dunn Dwight Dylan Earl Ed Eden Edgar Edmund Edison Edward Edwiin Egbert Eli Elijah Elliot Ellis Elmer Elroy Elton Elvis Emmanuel Enoch Eric Ernest Eugene Evan Everley Fabian Felix Ferdinand Fitch Fitzgerald Ford Francis Frank Franklin Frederic Gabriel Gale Gary Gavin Gene Geoffrey Geoff George Gerald Gilbert Giles Glenn Goddard Godfery Gordon Greg Gregary Griffith Grover Gustave Guy Hale Haley Hamiltion Hardy Harlan Harley Harold Harriet Harry Harvey Hayden Heather Henry Herbert Herman Hilary Hiram Hobart Hogan Horace Howar Hubery Hugh Hugo Humphrey Hunter Hyman Ian Ingemar Ingram Ira Isaac Isidore Ivan Ives Jack Jacob James Jared Jason Jay Jeff Jeffrey Jeremy Jerome Jerry Jesse Jim Jo John Jonas Jonathan Joseph Joshua Joyce Julian Julius Justin Keith Kelly Ken Kennedy Kenneth Kent Kerr Kerwin Kevin Kim King Kirk Kyle Lambert Lance Larry Lawrence Leif Len Lennon Leo Leonard Leopold Les Lester Levi Lewis Lionel Lou Louis Lucien Luther Lyle Lyndon Lynn Magee Malcolm Mandel Marcus Marico Mark Marlon Marsh Marshall Martin Marvin Matt Matthew Maurice Max Maximilian Maxwell Meredith Merle Merlin Michael Michell Mick Mike Miles Milo Monroe Montague Moore Morgan Mortimer Morton Moses Murphy Murray Myron Nat Nathan Nathaniel Neil Nelson Newman Nicholas Nick Nigel Noah Noel Norman Norton Ogden Oliver Omar Orville Osborn Oscar Osmond Oswald Otis Otto Owen Page Parker Paddy Patrick Paul Payne Perry Pete Peter Phil Philip Porter Prescott Primo Quentin Quennel Quincy Quinn Quintion Rachel Ralap Randolph Raymond Reg Regan Reginald Reuben Rex Richard Robert Robin Rock Rod Roderick Rodney Ron Ronald Rory Roy Rudolf Rupert Ryan Sam Sampson Samuel Sandy Saxon Scott Sean Sebastian Sid Sidon Sidney Sidon Silvester Simon Solomon Spencer Stan Stanford Stanley Steven Stev Steward Tab Taylor Ted Ternence Theobald Theodore Thomas Tiffany Tim Timothy Tobias Toby Todd Tom Tony Tracy Troy Truman Tyler Tyrone Ulysses Upton Uriah Valentine Valentine Verne Vic Victor Vincent Virgil Vito Vivian Wade Walker Walter Ward Warner Wayne Webb Webster Wendell Werner Wilbur Will William Willie Winfred Winston Woodrow Wordsworth Wright Wythe Xavier Yale Yehudi York Yves Zachary Zebulon Ziv".split(' ')
+  const FAMILY_NAME = "Abbott Abe Abraham Abraham Acheson Ackermann Adam Adams Addison Adela Adelaide Adolph Agnes Albert Alcott Aldington Aldridge Aledk Alexander Alerander Alfred Alice Alick Alexander Alsopp Aly Amelia Anderson Andrew Ann Anna Anne Anthony Antoinette Antonia Arabella Archibald Armstrong Arnold Arthur Attlee Augustine Augustus Austen Austin Babbitt Bach Bacon Baldwin Barnard Barney Barnard Barrett Barrie Bart Bartholomew Bartholomew Bartlett Barton Bauer Beard Beaufort Becher Beck Rebecca Becky Beerbohm Bell Bellamy Belle Arabella Belloc Ben Benjamin Benedict Benjamin Bennett Benedict Benson Bentham Berkeley Bernal Bernard Bert Albert Herbert Bertha Bertie Bertram Bess Elizabeth Bessemer Bessie Elizabeth Bethune Betsy Elizabeth Betty Elizabeth Bill William Billy William Birrell Black Blake Bloomer Bloomfield Bloor Blume Bob Robert Bobby Robert Boswell Bowen Bowman Boyle Bradley Bray Brewster Bridges Bright Broad Bronte Brooke Brown Browne Browning Bruce Bruno Bryan Bryce Buck Buckle Bulwer Bunyan Burke BurneJones Burns Butler Byron Camilla Camp Carey Carl Carllyle Carmen Carnegie Caroline Carpenter Carrie Carroll Carter Catharine Catherine Cecillia Chamberlain Chaplin Chapman Charles Charley Charles Charlotte Charles Chaucer Chesterton Child Childe Christ Christian Christiana Christie Christian Christopher Christy Christian Church Churchill Cissie Cecillia Clapham Clara Clare ClaraClarissa Clarissa Clarke Clemens Clement Cocker Coffey Colclough Coleridge Collins Commons Conan Congreve Connie Constance Connor Conrad Constance Cooke Cooper Copperfield Cotton Coverdale Cowper Craigie Crane Crichton Croft Crofts Cromwell Cronin Cumberland Curme Daisy Dalton Dan Daniell Daniel Daniell Darwin David Davy David Defoe Delia Dennis DeQuincey Dewar Dewey Dick Richard Dickens Dickey Dillon Dobbin Robert Dodd Doherty Dolly Dorthea Dorothy Donne Dora Dorthea Dorothy Doris Dorothea Dorothy Douglass Doyle Dierser Dryden DuBois Dulles Dunbar Duncan Dunlop Dupont Dutt Eddie Edward Eden Edgeworth Edie Adam Edison Edith Edmund Edward Effie Euphemia Eipstein Eisenhower Eleanor Electra Elinor Eliot Elizabeth Ella Eleanor Elinor Ellen Eleanor Elinor Ellis Elsie Alice Elizabeth Emerson Emily Emma Emmie Emmy Emma Ernest Esther Eugen Eugene Euphemia Eva Evan Evans Eve Evelina Eveline Evelyn Eva Eve Ezekiel Fanny Frances Faraday Fast Faulkner Felix Felton Ferdinand Ferguson Field Fielding Finn FitzGerald Flower Flynn Ford Forster Foster Fowler Fox Frances Francis Frank Francis Franklin Franklin Fred Frederick Frederick Freeman Funk Gabriel Galbraith Gallacher Gallup Galsworthy Garcia Garden Gardiner Gaskell Geoffrey Geordie George George Gibbon Gibson Gilbert Giles Gill Juliana Gissing Gladstone Godwin Gold Goldsmith Gosse Grace Gracie Grace Graham Grant Grantham Gray Green Gregory Gresham Grey Grote Gunter Gunther Gus Augustus Guy Habakkuk Haggai Hal Henry Halifax Hamilton Hamlet Hansen Hansom Hardy Harold Harper Harriman Harrington Harrison Harrod Harry Henry Hart Harte Harvey Hawthorne Haydn Haywood Hazlitt Hearst Helina Hemingway Henley Henrietta Henry Herbert Herty Henrietta Hewlett Hicks Hill Hobbes Hobson Hodge Hodgson Holmes Holt Hood Hoover Hope Hopkins Horace Horatio Hornby Hosea House Housman Houston Howard Howells Hoyle Hubbard Hudson Huggins Hugh Hugh Hughes Hume Humphrey Huntington Hutt Huxley Ingersoll Irving Isaac Isabel Isaiah Ivan Jack John Jackson Jacob James Jane Jasper Jeames James Jean Jane Jefferson Jenkins Jennings Jenny Jane Jeremiah Jeremy Jerome Jerry Jeremiah Jessie Jane Joan Jim James Jimmy James Joan Job Joe Josepy Joel John Johnny John Johnson Johnstone Jonah Jonathan Jones Jonson Jordan Joseph Josh Joshua Joshua Joule Joyce Judd Judith Judson Julia Julian Juliana Juliet Julia Julius Katte Catharine Katharine Kathleen Catharine Katrine Catharine Keats Kelley Kellogg Kelsen Kelvin Kennan Kennedy Keppel Keynes Kingsley Kipling Kit Catharine Kitto Christopher Kitty Lamb Lambert Lancelot Landon Larkin Lawrence Lattimore Laurie Lawrence Law Lawrence Lawson Leacock Lee Leigh Leighton Lena Helena Leonard Leopold Lew Lewis Lewis Lily Lincoln Lindbergh Lindsay Lizzie Elizabeth Lloyd Locke London Longfellow Longman Louie Lewis Louisa Louise Louis Louisa Louise Lowell Lucas Lucia Lucius Lucy Luke Lyly Lynch Lynd Lytton MacAdam MacArthur Macaulay MacDonald Macdonald Mackintosh MacMillan Macmillan MacPherson Macpherson Madge Margaret Maggie Margaret Malachi Malan Malory Malthus Maltz Mansfield Marcellus Marcus Marcus Margaret Margery Maria Marion Marjory Margaret Mark Marlowe Marner Marshall Martha Martin Mary Masefield Mathilda Matthew Maud Mathilda Maugham Maurice Max Maxwell May Mary McCarthy McDonald MacDonald Meg Margaret Melville Meredith Micah Michael Michelson Middleton Mike Michael Mill Milne Milton Minnie Wilhelmina Moll Mary Mond Monroe Montgomery Moore More Morgan Morley Morris Morrison Morse Morton Moses Motley Moulton Murray Nahum Nancy Ann Anna Anne Nathaniei Needham Nehemiah Nell Nelly Eleanor Helen Nelson Newman Newton Nicholas Nichols Nick Nicholas Nicol Nixon Noah Noel Nora Eleanor Norris North Norton Noyes Obadiah OCasey Occam OConnor Oliver ONeil Onions Orlando Oscar Owen Palmer Pansy Parker Partridge Pater Patience Patrick Paul Peacock Pearson Peg Margaret Peggy Margaret Penn Pepys Perkin Peter Peter Petty Philemon Philip Piers Peter Pigou Pitman Poe Pollitt Polly Mary Pope Pound Powell Price Priestley Pritt Pulitzer Pullan Pullman Quiller Raglan Raleign Ralph Raman Ramsden Raphael Rayleign Raymond Reade Rebecca Reed Reynolds Rhodes Rhys Ricardo Richard Richards Richardson Rob Robert Robbins Robert Robeson Robin Robert Robinson Rockefeller Roger Roland Romeo Roosevelt Rosa Rosalind Rose Rossetti Roy Rudolph Rudolf Rusk Ruskin Russell Ruth Rutherford Sainsbury Sailsbury Sally Sara Salome Sam Samuel Samson Samuel Sander Alexander Sandy Alexander Sapir Sarah Saroyan Sassoon Saul Sawyer Saxton Scott Scripps Senior Service Shakespeare Sharp Shaw Shelley Sheridan Sherwood Sidney Silas Simon Simpson Sinclair Smedley Smith Smollett Snow Sonmerfield Sophia Sophy Sophia Southey Spencer Spender Spenser Springhall Steele Steinbeck Stella Stephen Stephens Stevenson Stilwell Stone Stowe Strachey Strong Stuart Surrey Susan Susanna Sweet Swift Swinburne Symons Tate Taylor Ted Edward Temple Tennyson Terry Theresa Thackeray Thodore Theresa Thomas Thompson Thomson Thoreau Thorndike Timothy Titus Tobias Toby Tobias Toland Tom Thomas Tomlinson Tommy Thomas Tony Anthony Tours Tout Toynbee Tracy Theresa Trevelyan Trollpoe Truman Turner Tuttle Twain Tyler Ulysses Valentine Van Vaughan Veblen Victor Vincent Violet Virginia Vogt Wagner Walker Walkley Wallace Wallis Walpole Walsh Walter Walton Ward Warner Warren Washington Wat Walter Waters Watt Webb Webster Wells Wesley Wheatley Wheeler Whit Whitehead Whitman Whittier Whyet Wilcox Wild Wilde Wilhelmina Will William Willard William Wilmott Wilson Windsor Winifred Wodehous Wolf Wollaston Wood Woolf Woolley Wordsworth Wright Wyatt Wycliffe Wylde Yale Yeates Yerkes Young Yule Zacharias Zangwill Zechariah Zephaniah Zimmerman".split(' ');
+  const FAMILY_NAME_USED = []
+
+  class People{
+    constructor(family_name, birthday_year) {
+      let name = NAME.slice(0).sort((a, b) => Math.random() - 0.5)[0]
+      this.name = `${family_name} ${name}`
+      this.birthday = birthday_year
+    }
+    
+    update_people = year_now => {
+      // if (year_now < this.birthday) return
+      this.age = year_now - this.birthday
+      this.is_living = this.age > -1 && this.age < 80
+      this.salary = this.is_living ? SALARY_WITH_AGE[this.age] : 0
+      this.consumption = this.is_living ? CONSUMPTION_WITH_AGE[this.age] : 0
+    }
+  }
+
+  class Household {
+    constructor() {
+      const choose_family_name = () => {
+        let family_name = FAMILY_NAME.slice(0).sort((a, b) => Math.random() - 0.5)[0]
+        if (FAMILY_NAME_USED.includes(family_name)) {
+          return choose_family_name()
+        } else {
+          return family_name
+        }
+      }
+      this.family_name = choose_family_name()
+
+      const marriage_age = 28;
+      let grandpa_birth_year = 1860
+      let grandpa = new People(this.family_name, grandpa_birth_year);
+      let papa = new People(this.family_name, grandpa_birth_year + marriage_age);
+      let son = new People(this.family_name, grandpa_birth_year + 2 * marriage_age);
+      this.family_members = [grandpa, papa, son]
+      console.log('family ',this.family_name, 'has family_members', DEEP_COPY(this.family_members))
+
+      this.deposit = 1000
+    }
+
+    update_family = (year_now) => {
+      for (let member_index = 0; member_index < this.family_members.length; member_index++) {
+        let member = this.family_members[member_index]
+        member.update_people(year_now)
+        if (member.is_living) {
+          this.deposit += member.salary
+          this.deposit -= member.consumption
+        } else {
+          this.family_members.splice(member_index, 1)
+          console.warn('Sorry ~~~~ member ', member ,' dead at year', year_now)
+          member_index = member_index - 1
+        }
+      }
+      // console.log('year_now', year_now)
+      // console.log('salary', son.salary)
+      // console.log('consumption', son.consumption)
+      // console.log('------------------------')
+      // console.log('at year', year_now, 'their deposit become ', this.deposit)
+      this.delivery_child(year_now)
+    }
+
+    delivery_child(year_now) {
+      console.log('--------------------', year_now, '--------------------')
+      // family will raise him for many years until he can stand alone
+      // let raise_cost = CONSUMPTION_WITH_AGE.map((cost, year) => year < 20 ? cost : 0).reduce((prev, next, index, array) => prev + next)
+      let raise_cost_of_year = CONSUMPTION_WITH_AGE.slice(0, STAND_ALONE_AGE)
+      let raise_cost = raise_cost_of_year.reduce((prev, next, index, array) => prev + next)
+      // the child's income will be ignored
+      // console.log('next 20 years raise cost will be', CONSUMPTION_WITH_AGE.slice(0, STAND_ALONE_AGE))
+      // console.log('raise child will cost ', raise_cost)
+      console.log('family_members', DEEP_COPY(this.family_members))
+      console.log('this.deposit ', this.deposit )
+      let family_balance = this.family_members.map((member, index) => {
+        let age = year_now - member.birthday
+        // console.log('next 20 years consumption will be', CONSUMPTION_WITH_AGE.slice(age + 1, age + 21))
+        let consumption_arr = CONSUMPTION_WITH_AGE.slice(age + 1, age + STAND_ALONE_AGE + 1)
+        let cost_next_20_year = consumption_arr.length ? consumption_arr.reduce((prev, next, index, array) => prev + next) : 0
+        // console.log('family_member ', member.name, ' at age ', age, 'will cost ', cost_next_20_year)
+        // console.log('next 20 years salary will be', SALARY_WITH_AGE.slice(age + 1, age + 21))
+        let income_arr = SALARY_WITH_AGE.slice(age + 1, age + STAND_ALONE_AGE + 1)
+        let income_next_20_year = income_arr.length ? income_arr.reduce((prev, next, index, array) => prev + next) : 0
+        // console.log('family_member ', member.name, ' at age ', age, 'will earn ', income_next_20_year)
+        // return {
+        //   income: income_next_20_year,
+        //   cost: cost_next_20_year
+        // }
+        return {
+          income: income_arr,
+          cost: consumption_arr,
+        }
+      })
+      console.log('family_balance', family_balance)
+      if (family_balance.length) {
+        // let total_balance = family_balance.reduce((prev, next, index, array) => ({income: prev.income + next.income, cost: prev.cost + next.cost}))
+        // console.log('total_balance', total_balance)
+        // let decide_to_have_child = Math.floor((this.deposit + total_balance.income - total_balance.cost) / raise_cost)
+        // console.log('this.deposit + total_balance.income - total_balance.cost', this.deposit + total_balance.income - total_balance.cost)
+        // console.log('decide_to_have_child', decide_to_have_child)
+        // if (decide_to_have_child > 0) {
+        //   let new_baby = Array.from(new Array(decide_to_have_child), (e, i) => {
+        //     let new_born_child = new People(this.family_name, year_now + 1)
+        //     console.warn('congrats ! ', this.family_name ,'has a new member ', new_born_child.name, ' at year ', year_now)
+        //     this.family_members.push(new_born_child)
+        //   })
+        // }
+        // if use total balance to calculate , the birth rate will be one child every 6 year
+        // if add deposit larger than 0, birth rate will be one child every 20 year
+        // if every year deposit larger than 0, birth rate will be one child every ** year
+        // let decide_to_have_child = this.deposit + total_balance.income - total_balance.cost - raise_cost > 0 && this.deposit > 0
+        let temp_deposit = this.deposit
+        let decide_to_have_child = Array.from(new Array(STAND_ALONE_AGE), (e, i) => {
+          let balance_of_year = family_balance.reduce((pre, post, index, arr) => {
+            // console.table({pre, post, index, arr})
+            // return {
+            //   income: pre.income + post.income[i],
+            //   cost: pre.cost + post.cost[i]
+            // }
+            // console.log('year', i)
+            // calculate every member's balance
+            temp_deposit = temp_deposit + (post.income[i] ? post.income[i] : 0) - (post.cost[i] ? post.cost[i] : 0) - raise_cost_of_year[i]
+            return temp_deposit
+          }, temp_deposit)
+          return balance_of_year
+        }).every(balance_of_year => balance_of_year > 0)
+        // .every(deposit_of_year => deposit_of_year > 0)
+        console.log('decide_to_have_child', decide_to_have_child)
+        // this.deposit + total_balance.income - total_balance.cost - raise_cost > 0 && this.deposit > 0
+        if (decide_to_have_child) {
+          let new_born_child = new People(this.family_name, year_now + 1)
+          console.warn('congrats ! ', this.family_name ,'will have a new member ', new_born_child.name, ' at year ', year_now + 1)
+          this.family_members.push(new_born_child)
+        }
+      } else {
+        console.warn('family ', this.family_name, ' all die at year ', year_now)
+      }
+      
+      //CONSUMPTION_WITH_AGE.map((cost, year) => year < 20 ? cost : 0).reduce((prev, next, index, array) => prev + next)
+      console.log('--------------------  *  --------------------')
+    }
+  }
+  
+  function random_str() {
+    return Math.random().toString(36).slice(-8)
+  }
+
+  function plot(plot_arr, gutter = 20, color = 'red') {
+    const canvas = document.getElementById('canvas')
+    const context = canvas.getContext("2d")
+    const canvas_width = 10000
+    const canvs_height = 1000
+
+    // x-oxis
+    context.beginPath();       // Start a new path
+    context.moveTo(0, canvs_height/2);    // Move the pen to (30, 50)
+    context.lineTo(canvas_width, canvs_height/2);  // Draw a line to (150, 100)
+    context.stroke();   
+
+    // y-oxis
+    context.beginPath();       // Start a new path
+    context.moveTo(0, 0);    // Move the pen to (30, 50)
+    context.lineTo(0, canvs_height);  // Draw a line to (150, 100)
+    context.stroke();   
+
+    let max = Math.max(...plot_arr)
+    let min = Math.min(...plot_arr)
+    let max_abs = Math.ceil(Math.max(Math.abs(max), Math.abs(min)))
+
+    // console.log('plot_arr', plot_arr)
+    let unify_arr = plot_arr.map(y => y / max_abs * canvs_height/2)
+    unify_arr.forEach((y, x) => {
+      // plot(year * 10, doposit/5, 'red', year)
+      context.fillStyle = color
+      if (y > 0) {
+        context.fillRect(x * gutter, canvs_height/2 - y, 0.8 * gutter, y)
+      } else {
+        context.fillRect(x * gutter, canvs_height/2 , 0.8 * gutter, 0 - y)
+      }
+
+      context.textAlign = "start";
+      context.textBaseline = "bottom";
+      context.font = '14px serif';
+      context.fillStyle = 'blue';
+      context.fillText('' + x, x * gutter, canvs_height/2 + 10)
+    })
+
+
+    context.textAlign = "start";
+    context.textBaseline = "bottom";
+    context.font = '14px serif';
+    context.fillStyle = 'blue';
+    context.fillText('+' + max_abs, 0 ,20)
+    context.fillText('-' + max_abs, 0 ,990)
+  }
+
+  function main() {
+    let deposit_arr = []
+    const family_example = new Household()
+    for (let year_now = 1900; year_now < 4901; year_now++) {
+      family_example.update_family(year_now)
+      deposit_arr.push(family_example.deposit)
+      // family_example.delivery_child(year_now)
+    }
+
+
+
+    plot(deposit_arr, 20)
+  }
+
+
+  main()
+
+
+</script>
+</body>
+</html>
