@@ -60,6 +60,7 @@
         if (FAMILY_NAME_USED.includes(family_name)) {
           return choose_family_name()
         } else {
+          FAMILY_NAME_USED.push(family_name)
           return family_name
         }
       }
