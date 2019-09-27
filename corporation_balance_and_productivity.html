@@ -21,7 +21,7 @@
   // if N * P = expect(D) * A * C , then the model will balance
 
   const SALARY_BASE = 10;
-  const RAW_MATERIAL_PRICE = 80;
+  const RAW_MATERIAL_PRICE = 90;
   const PRODUCT_PRICE = 100;
 
   class Consumer {
@@ -46,8 +46,14 @@
     }
 
     produce(goods_number) {
-      this.stock += goods_number;
-      this.assets -= goods_number * RAW_MATERIAL_PRICE;
+      if (this.assets > goods_number * RAW_MATERIAL_PRICE) {
+        this.stock += goods_number;
+        this.assets -= goods_number * RAW_MATERIAL_PRICE;
+      } else {
+        let number = Math.floor(this.assets / RAW_MATERIAL_PRICE)
+        this.stock += number;
+        this.assets -= number * RAW_MATERIAL_PRICE;
+      }
     }
 
     sell(price, amount) {
@@ -64,7 +70,7 @@
         consummers.push(new Consumer(SALARY_BASE * 2 + SALARY_BASE * 3 * Math.random()))
       }
       this.consummers = consummers;
-      let assets = PRODUCT_PRICE * consummers.length;
+      let assets = PRODUCT_PRICE * consummers.length / 20;
       this.factory = new Factory(assets)
     }
 
@@ -101,11 +107,11 @@
     for (let year_now = 0; year_now < 100; year_now++) {
       let data = entity.updateEntrity()
       deposit_arr.push(data.consummers.reduce((pre, post) => pre + post.deposit, 0))
-      assets_arr.push(data.factory.assets)
+      assets_arr.push(-data.factory.assets)
       stock_arr.push(data.factory.stock)
       // family_example.delivery_child(year_now)
     }
-    console
+
     plot({
       data: deposit_arr,
       canvas: document.getElementById('canvas'),
@@ -121,6 +127,14 @@
       x_step: 20,
       bar_ratio: 0.4,
       color: 'pink'
+    })
+    plot({
+      data: assets_arr,
+      canvas: document.getElementById('canvas'),
+      x_start: 0,
+      x_step: 20,
+      bar_ratio: 0.4,
+      color: 'brown'
     })
   }
 
