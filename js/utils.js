@@ -30,7 +30,7 @@ function genCanvasContext(canvasOrContainer, canvas_width = 1000, canvs_height =
   return canvas.getContext("2d")
 }
 
-export function plot({ data = [], canvas, x_start = 0, x_step = 20, color = 'red', canvas_width = 10000, canvs_height = 1000}) {
+export function plot({ data = [], canvas, x_start = 0, x_step = 20, bar_ratio = 0.8, color = 'red', canvas_width = 10000, canvs_height = 1000}) {
   // const canvas = document.getElementById('canvas')
   // const context = canvas.getContext("2d")
   // const canvas_width = 10000
@@ -54,9 +54,9 @@ export function plot({ data = [], canvas, x_start = 0, x_step = 20, color = 'red
     // plot(year * 10, doposit/5, 'red', year)
     context.fillStyle = color
     if (y > 0) {
-      context.fillRect(x * x_step, canvs_height/2 - y, 0.8 * x_step, y)
+      context.fillRect(x_start + x * x_step, canvs_height/2 - y, bar_ratio * x_step, y)
     } else {
-      context.fillRect(x * x_step, canvs_height/2 , 0.8 * x_step, 0 - y)
+      context.fillRect(x_start + x * x_step, canvs_height/2 , bar_ratio * x_step, 0 - y)
     }
 
     context.textAlign = "start";
@@ -68,10 +68,10 @@ export function plot({ data = [], canvas, x_start = 0, x_step = 20, color = 'red
     context.fillStyle = 'blue';
     if (y > 0) {
       // context.fillRect(x * x_step, canvs_height/2 - y, 0.8 * x_step, y)
-      context.fillText(y.toFixed(2), x * x_step, canvs_height/2 - y - 10)
+      context.fillText(y.toFixed(2), x_start + x * x_step, canvs_height/2 - y - 10)
     } else {
       // context.fillRect(x * x_step, canvs_height/2 , 0.8 * x_step, 0 - y)
-      context.fillText(y.toFixed(1), x * x_step, canvs_height/2 - y + 10)
+      context.fillText(y.toFixed(1), x_start + x * x_step, canvs_height/2 - y + 10)
     }
   })
 

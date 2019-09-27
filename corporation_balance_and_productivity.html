@@ -5,48 +5,121 @@
 </div>
 <script type="module">
 
-  import { COMPANY_NAME } from './js/constants.js'
-  import { plot } from './js/utils.js'
-  import { Company } from './js/class.js'
-  console.log('Company', new Company())
-
+  import { COMPANY_NAME, NAME } from './js/constants.js'
+  import { plot, deep_copy } from './js/utils.js'
+  // import { Company } from './js/class.js'
   
   // assume :
-  // consumer have fixed budget 
+  // consumer have random income and will buy product if they can
+  // factory will produce product and sell it at some price
+  // salary is not considerd
+  // let N is number of product produced per year
+  // let P is price of prodect
+  // let A is consumer amount
+  // let S is consummer salary base
+  // let D is consumer salary dispute
+  // if N * P = expect(D) * A * C , then the model will balance
 
+  const SALARY_BASE = 10;
+  const RAW_MATERIAL_PRICE = 80;
+  const PRODUCT_PRICE = 100;
 
+  class Consumer {
+    constructor (deposit) {
+      this.name = NAME[Math.floor(Math.random() * NAME.length)]
+      this.deposit = deposit
+    }
 
+    earn() {
+      this.deposit += SALARY_BASE * Math.random();
+    }
+
+    consume(price) {
+      this.deposit -= Number(price) ? Number(price) : 0
+    }
+  }
+
+  class Factory {
+    constructor (assets) {
+      this.assets = assets
+      this.stock = 0
+    }
+
+    produce(goods_number) {
+      this.stock += goods_number;
+      this.assets -= goods_number * RAW_MATERIAL_PRICE;
+    }
+
+    sell(price, amount) {
+      this.assets += price * amount;
+      this.stock = amount > this.stock ? 0 : this.stock - amount;
+    }
+
+  }
+
+  class Entity {
+    constructor() {
+      let consummers = [];
+      for (let i = 0; i < 100; i++) {
+        consummers.push(new Consumer(SALARY_BASE * 2 + SALARY_BASE * 3 * Math.random()))
+      }
+      this.consummers = consummers;
+      let assets = PRODUCT_PRICE * consummers.length;
+      this.factory = new Factory(assets)
+    }
+
+    updateEntrity() {
+      // init entity
+      this.consummers.forEach(consummer => consummer.earn())
+      this.factory.produce(this.consummers.length * PRODUCT_PRICE / RAW_MATERIAL_PRICE / 20)
+      // buy
+      this.consummers.sort((a, b) => a.deposit - b.deposit)
+      this.consummers.forEach(consummer => {
+        if (this.factory.stock > 0 && consummer.deposit >= PRODUCT_PRICE) {
+          consummer.consume(PRODUCT_PRICE)
+          this.factory.sell(PRODUCT_PRICE, 1)
+        }
+      })
+      // console.log('this.consummers after buy', this.consummers)
+      let data = {
+        consummers: deep_copy(this.consummers),
+        factory: deep_copy(this.factory)
+      }
+      return data
+    }
+  }
 
   function main() {
-    let deposit_arr = []
+    let entity = new Entity()
+    
+
+    // product number should be consummers/20
+    let deposit_arr = [];
+    let assets_arr = [];
+    let stock_arr = []
     // const company_example = new Company()
-    for (let year_now = 0; year_now < 628; year_now++) {
-      // company_example.update_company(year_now)
-      deposit_arr.push(100 * Math.sin(year_now/100))
+    for (let year_now = 0; year_now < 100; year_now++) {
+      let data = entity.updateEntrity()
+      deposit_arr.push(data.consummers.reduce((pre, post) => pre + post.deposit, 0))
+      assets_arr.push(data.factory.assets)
+      stock_arr.push(data.factory.stock)
       // family_example.delivery_child(year_now)
     }
+    console
     plot({
       data: deposit_arr,
       canvas: document.getElementById('canvas'),
       x_start: 0,
-      x_step: 10,
+      x_step: 20,
+      bar_ratio: 0.4,
       color: 'red'
     })
-  }
-
-  function main_b() {
-    let deposit_arr = []
-    const company_example = new Company()
-    for (let year_now = 1900; year_now < 2001; year_now++) {
-      // company_example.update_company(year_now)
-      deposit_arr.push(-(year_now - 1950) * (year_now - 1990))
-      // family_example.delivery_child(year_now)
-    }
     plot({
-      data: deposit_arr,
+      data: stock_arr,
       canvas: document.getElementById('canvas'),
-      x_start: 1900,
-      x_step: 40,
+      x_start: 10,
+      x_step: 20,
+      bar_ratio: 0.4,
       color: 'pink'
     })
   }
