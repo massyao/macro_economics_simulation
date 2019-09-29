@@ -37,6 +37,7 @@ export function plot({ data = [], canvas, x_start = 0, x_step = 20, bar_ratio = 
   // const canvs_height = 1000
 
   const context = genCanvasContext(canvas, canvas_width, canvs_height)
+  const canvas_padding = 20
 
   // x-oxis
   context.beginPath();       // Start a new path
@@ -68,10 +69,10 @@ export function plot({ data = [], canvas, x_start = 0, x_step = 20, bar_ratio = 
     context.fillStyle = 'blue';
     if (y > 0) {
       // context.fillRect(x * x_step, canvs_height/2 - y, 0.8 * x_step, y)
-      context.fillText(y.toFixed(2), x_start + x * x_step, canvs_height/2 - y - 10)
+      context.fillText(data[x].toFixed(0), x_start + x * x_step, canvs_height/2 - y - 10)
     } else {
       // context.fillRect(x * x_step, canvs_height/2 , 0.8 * x_step, 0 - y)
-      context.fillText(y.toFixed(1), x_start + x * x_step, canvs_height/2 - y + 10)
+      context.fillText(data[x].toFixed(0), x_start + x * x_step, canvs_height/2 - y + 10)
     }
   })
 
@@ -87,4 +88,6 @@ export function plot({ data = [], canvas, x_start = 0, x_step = 20, bar_ratio = 
   context.fillStyle = 'blue';
   context.fillText('+' + max_abs, 0 ,20)
   context.fillText('-' + max_abs, 0 ,canvs_height - 20)
+
+  // context.translate(0, canvas_padding)
 }
