@@ -21,8 +21,8 @@
   // if N * P = expect(D) * A * C , then the model will balance
 
   const SALARY_BASE = 10;
-  const RAW_MATERIAL_PRICE = 90;
   const PRODUCT_PRICE = 100;
+  const RAW_MATERIAL_PRICE = 90;
 
   class Consumer {
     constructor (deposit) {
@@ -30,8 +30,8 @@
       this.deposit = deposit
     }
 
-    earn() {
-      this.deposit += SALARY_BASE * Math.random();
+    earn(salary_base = SALARY_BASE) {
+      this.deposit += salary_base * Math.random();
     }
 
     consume(price) {
@@ -69,21 +69,23 @@
 
   }
 
-  class Entity {
+  class Company {
     constructor() {
       let consummers = [];
       for (let i = 0; i < 10000; i++) {
-        consummers.push(new Consumer(SALARY_BASE * 2 + SALARY_BASE * 3 * Math.random()))
+        consummers.push(new Consumer(SALARY_BASE * 1 + SALARY_BASE * 4 * Math.random()))
       }
       this.consummers = consummers;
       let assets = PRODUCT_PRICE * consummers.length / 20;
+      this.product_price = PRODUCT_PRICE
       this.factory = new Factory(assets)
       // history data
       this.deposit_arr = [];
       this.assets_arr = [];
       this.stock_arr = [];
       this.produce_arr = [];
-      this.sell_arr = []
+      this.sell_arr = [];
+      this.price_arr = [];
     }
 
     updateEntrity() {
@@ -95,15 +97,37 @@
       // ---------------   produce  -----------------
       // produce will use congestion control algorithm
       let produce_order = 0
-      // let [last_year_stock] = this.stock_arr.slice(-1)
-      let [last_year_produce] = this.produce_arr.slice(-1)
+      // last_year_stock
+      let [stock_5 = 0, stock_4 = 0, stock_3 = 0, stock_2 = 0, stock_1 = 0] = this.stock_arr.slice(-1)
+      let [last_year_produce = 1] = this.produce_arr.slice(-1)
       let [sell_5 = 0, sell_4 = 0, sell_3 = 0, sell_2 = 0, sell_1 = 0] = this.sell_arr.slice(-5)
+      let [last_year_stock] = this.stock_arr.slice(-1)
+      // console.log('last_year_stock', last_year_stock)
+      // if (sell_1 >= last_year_produce) {
       if (sell_1 >= last_year_produce) {
-        // let [last_year_stock] = this.stock_arr.slice(-1)
+        // boom stage
+        this.product_price = Math.ceil(this.product_price * 1.05)
         produce_order = Math.ceil(last_year_produce * 1.5)
       } else {
-        let sell_average = (sell_5 + sell_4 + sell_3 + sell_2 + sell_1) / 5
-        produce_order = Math.floor((sell_average - this.stock) * 0.9)
+        // resession stage
+        let sell_average = (sell_2 + sell_1) / 2
+        if (stock_5 > 0) {
+          this.product_price = Math.ceil(this.product_price * 0.6)
+          produce_order = Math.ceil((sell_1 - last_year_stock) * 0.1)
+        } else if (stock_4 > 0) {
+          this.product_price = Math.ceil(this.product_price * 0.7)
+          produce_order = Math.ceil((sell_1 - last_year_stock) * 0.4)
+        } else if (stock_3 > 0) {
+          this.product_price = Math.ceil(this.product_price * 0.8)
+          produce_order = Math.ceil((sell_1 - last_year_stock) * 0.7)
+        } else if (stock_2 > 0) {
+          this.product_price = Math.ceil(this.product_price * 0.9)
+          produce_order = Math.ceil((sell_1 - last_year_stock) * 0.9)
+        } else if (stock_1 > 0) {
+          produce_order = Math.ceil((sell_1 - last_year_stock) * 1)
+        } else {
+          console.log('this.product_price', this.product_price)
+        }
         // produce_order = Math.min(produce_order, this.stock)
       }
       produce_order = produce_order > 0 ? produce_order : 1
@@ -114,9 +138,9 @@
       // this.consummers.sort((a, b) => a.deposit - b.deposit)
       this.consummers.sort((a, b) => b.deposit - a.deposit)
       this.consummers.forEach(consummer => {
-        if (this.factory.stock > 0 && consummer.deposit >= PRODUCT_PRICE) {
-          consummer.consume(PRODUCT_PRICE)
-          this.factory.sell(PRODUCT_PRICE, 1)
+        if (this.factory.stock > 0 && consummer.deposit >= this.product_price) {
+          consummer.consume(this.product_price)
+          this.factory.sell(this.product_price, 1)
         }
       })
       // ---------------  save data  -----------------
@@ -129,55 +153,97 @@
       this.stock_arr.push(data.factory.stock)
       this.produce_arr.push(data.factory.produce_number)
       this.sell_arr.push(data.factory.sell_number)
+      this.price_arr.push(this.product_price)
       // return data
     }
   }
 
+  
+
   function main() {
-    let entity = new Entity()
+    let company_a = new Company()
 
     // const company_example = new Company()
-    for (let year_now = 0; year_now < 700; year_now++) {
-      entity.updateEntrity()
+    for (let year_now = 0; year_now < 370; year_now++) {
+      company_a.updateEntrity()
     }
     // entity.deposit_arr entity.assets_arr entity.stock_arr entity.sell_arr produce_arr
     plot({
-      data: entity.deposit_arr,
+      data: company_a.deposit_arr,
       canvas: document.getElementById('canvas'),
+      title: 'deposit_arr',
+      x_start: 0,
+      x_step: 20,
+      bar_ratio: 0.4,
+      color: 'red'
+    })
+    // plot({
+    //   data: company_a.assets_arr,
+    //   title: 'assets_arr',
+    //   x_start: 0,
+    //   x_step: 20,
+    //   bar_ratio: 0.4,
+    //   color: 'red'
+    // })
+    plot({
+      data: company_a.stock_arr,
+      title: 'stock_arr',
       x_start: 0,
       x_step: 20,
       bar_ratio: 0.4,
       color: 'red'
     })
     plot({
-      data: entity.stock_arr,
-      canvas: document.getElementById('canvas'),
-      x_start: 10,
-      x_step: 20,
-      bar_ratio: 0.4,
-      color: 'green'
-    })
-    plot({
-      data: entity.produce_arr.map(e => -e),
-      canvas: document.getElementById('canvas'),
+      data: company_a.sell_arr,
+      title: 'sell_arr',
       x_start: 0,
       x_step: 20,
       bar_ratio: 0.4,
-      color: 'brown'
+      color: 'red'
     })
     plot({
-      data: entity.sell_arr.map(e => -e),
-      canvas: document.getElementById('canvas'),
-      x_start: 10,
+      data: company_a.produce_arr,
+      title: 'produce_arr',
+      x_start: 0,
       x_step: 20,
       bar_ratio: 0.4,
-      color: 'blue'
+      color: 'red'
     })
+    plot({
+      data: company_a.price_arr,
+      title: 'price_arr',
+      x_start: 0,
+      x_step: 20,
+      bar_ratio: 0.4,
+      color: 'red'
+    })
+    // plot({
+    //   data: company_a.stock_arr,
+    //   canvas: document.getElementById('canvas'),
+    //   x_start: 10,
+    //   x_step: 20,
+    //   bar_ratio: 0.4,
+    //   color: 'green'
+    // })
+    // plot({
+    //   data: company_a.produce_arr.map(e => -e),
+    //   canvas: document.getElementById('canvas'),
+    //   x_start: 0,
+    //   x_step: 20,
+    //   bar_ratio: 0.4,
+    //   color: 'brown'
+    // })
+    // plot({
+    //   data: company_a.sell_arr.map(e => -e),
+    //   canvas: document.getElementById('canvas'),
+    //   x_start: 10,
+    //   x_step: 20,
+    //   bar_ratio: 0.4,
+    //   color: 'blue'
+    // })
   }
 
   main()
-
-
 
 </script>
 </body>

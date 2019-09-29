@@ -30,7 +30,7 @@ function genCanvasContext(canvasOrContainer, canvas_width = 1000, canvs_height =
   return canvas.getContext("2d")
 }
 
-export function plot({ data = [], canvas, x_start = 0, x_step = 20, bar_ratio = 0.8, color = 'red', canvas_width = 10000, canvs_height = 1000}) {
+export function plot({ data = [], canvas, title, x_start = 0, x_step = 20, bar_ratio = 0.8, color = 'red', canvas_width = 10000, canvs_height = 1000}) {
   // const canvas = document.getElementById('canvas')
   // const context = canvas.getContext("2d")
   // const canvas_width = 10000
@@ -88,6 +88,9 @@ export function plot({ data = [], canvas, x_start = 0, x_step = 20, bar_ratio = 
   context.fillStyle = 'blue';
   context.fillText('+' + max_abs, 0 ,20)
   context.fillText('-' + max_abs, 0 ,canvs_height - 20)
+
+  context.font = '54px serif ';
+  context.fillText('' + title, 50 ,50)
 
   // context.translate(0, canvas_padding)
 }
